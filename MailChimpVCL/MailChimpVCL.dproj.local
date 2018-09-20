@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2018/09/12 04:14:09.000.668,=C:\Users\shihan\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2018/09/12 04:16:04.000.289,=C:\Users\shihan\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2018/09/12 04:16:52.000.880,C:\Users\shihan\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\shihan\Desktop\MailChimpVCL\FrmTeste.pas</Transaction>
+    <Transaction>2018/09/12 04:16:52.000.880,C:\Users\shihan\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\shihan\Desktop\MailChimpVCL\FrmTeste.dfm</Transaction>
+    <Transaction>2018/09/12 04:17:02.000.093,C:\Users\shihan\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\shihan\Desktop\MailChimpVCL\MailChimpVCL.dproj</Transaction>
+    <Transaction>2018/09/12 04:18:56.000.353,=C:\Users\shihan\Desktop\MailChimpVCL\uClasses.pas</Transaction>
+    <Transaction>2018/09/18 00:41:05.000.988,=C:\Users\shihan\Desktop\MailChimpVCL\Unit2.pas</Transaction>
+    <Transaction>2018/09/18 00:41:47.000.586,C:\Users\shihan\Desktop\MailChimpVCL\FrmCadastroDeLista.pas=C:\Users\shihan\Desktop\MailChimpVCL\Unit2.pas</Transaction>
+    <Transaction>2018/09/18 00:41:47.000.586,C:\Users\shihan\Desktop\MailChimpVCL\FrmCadastroDeLista.dfm=C:\Users\shihan\Desktop\MailChimpVCL\Unit2.dfm</Transaction>
+    <Transaction>2018/09/18 14:49:18.000.050,=C:\Users\shihan\Desktop\MailChimpVCL\Unit4.pas</Transaction>
+    <Transaction>2018/09/18 14:54:56.000.420,C:\Users\shihan\Desktop\MailChimpVCL\FrmCadastroCampanha.dfm=C:\Users\shihan\Desktop\MailChimpVCL\Unit4.dfm</Transaction>
+    <Transaction>2018/09/18 14:54:56.000.420,C:\Users\shihan\Desktop\MailChimpVCL\FrmCadastroCampanha.pas=C:\Users\shihan\Desktop\MailChimpVCL\Unit4.pas</Transaction>
+  </Transactions>
+</BorlandProject>
