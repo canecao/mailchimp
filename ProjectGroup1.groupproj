@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{188A6AAF-D075-45B3-9078-387432B27B1A}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="MailChimpVCL.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\mailchimp\mailchimp.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\SkyHub\SkyHub.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MailChimpVCL">
+        <MSBuild Projects="MailChimpVCL.dproj"/>
+    </Target>
+    <Target Name="MailChimpVCL:Clean">
+        <MSBuild Projects="MailChimpVCL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MailChimpVCL:Make">
+        <MSBuild Projects="MailChimpVCL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="mailchimp">
+        <MSBuild Projects="..\mailchimp\mailchimp.dproj"/>
+    </Target>
+    <Target Name="mailchimp:Clean">
+        <MSBuild Projects="..\mailchimp\mailchimp.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="mailchimp:Make">
+        <MSBuild Projects="..\mailchimp\mailchimp.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SkyHub">
+        <MSBuild Projects="..\SkyHub\SkyHub.dproj"/>
+    </Target>
+    <Target Name="SkyHub:Clean">
+        <MSBuild Projects="..\SkyHub\SkyHub.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SkyHub:Make">
+        <MSBuild Projects="..\SkyHub\SkyHub.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="MailChimpVCL;mailchimp;SkyHub"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="MailChimpVCL:Clean;mailchimp:Clean;SkyHub:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="MailChimpVCL:Make;mailchimp:Make;SkyHub:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
