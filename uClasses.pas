@@ -38,13 +38,13 @@ Type
     function GetMemTable: TFDMemTable;
     procedure FReqAfterExecute(Sender: TCustomRESTRequest);
     procedure gravarLog;
+    procedure gravaErro;
   public
     constructor create;
     procedure EnviaParaBanco(pSql : String);
     function Adicionar: Boolean; dynamic; abstract;
     function Deletar: Boolean; dynamic; abstract;
-    property HTTPBasicAuthenticator: THTTPBasicAuthenticator
-      read GetHTTPBasicAuthenticator;
+    property HTTPBasicAuthenticator: THTTPBasicAuthenticator read GetHTTPBasicAuthenticator;
     property RESTClient: TRESTClient read GetRESTClient;
     property Res: TRESTResponse read GetRes;
     property Adapter: TRESTResponseDataSetAdapter read GetAdapter;
@@ -256,8 +256,7 @@ begin
   JSON := TJSONObject.create;
   JSON.AddPair(TJSONPair.create('name', Self.name));
   JSON.AddPair(TJSONPair.create('contact', JSonContact));
-  JSON.AddPair(TJSONPair.create('permission_reminder',
-    Self.permission_remider));
+  JSON.AddPair(TJSONPair.create('permission_reminder', Self.permission_remider));
   JSON.AddPair(TJSONPair.create('campaign_defaults', JsonCampaignDefaults));
   JSON.AddPair(TJSONPair.create('email_type_option', TJSONTrue.create));
 
@@ -265,7 +264,9 @@ begin
 
   try
     Req.Execute;
-  finally
+    gravarLog;
+  Except
+     gravaErro
   end;
 
   if Res.GetSimpleValue('id', vId) then
@@ -323,17 +324,27 @@ end;
 function TListContact.DeletarPorId(pId: String): Boolean;
 var vSql : String;
 begin
+try
   try
     Req.Resource := 'Lists/' + pId;
     Req.Method := rmDELETE;
     Log := 'DELETE ' + Req.Resource;
     Req.Execute;
     Result := True;
-  finally
+    gravarLog;
+ finally
+   try
     vSql :=  'delete from CLIENTEFISICO_MAILCHIMP where (idlista = '+QuotedStr(Self.id)+')';
-
     EnviaParaBanco(vSql);
+    except
+      log := vsql;
+    end;
+    Result := True;
   end;
+except
+   gravaErro;
+   Result := false;
+end;
 end;
 
 destructor TListContact.Destroy;
@@ -343,7 +354,6 @@ end;
 
 function TListContact.Deletar: Boolean;
 begin
-
   Result := DeletarPorId(Self.Id);
 end;
 
@@ -427,8 +437,9 @@ begin
     Req.Method := rmGET;
     Log := 'GET LISTS';
     Req.Execute;
-  Finally
-
+    gravarLog;
+  except
+    gravaErro;
   End;
 end;
 
@@ -814,8 +825,6 @@ begin
 end;
 
 procedure TMailChimp.EnviaParaBanco(psql: String);
-var
-  aux: string;
 begin
 
   Conexao.ExecSQL(pSql);
@@ -824,14 +833,11 @@ begin
   Conexao.Free;
   Conexao := NIL;
   Log := EmptyStr;
-
 end;
 
 procedure TMailChimp.FReqAfterExecute(Sender: TCustomRESTRequest);
 begin
-    EnviaParaBanco('insert into mailchimp_log(data,envio) values (' +
-    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' +
-    QuotedStr(Log) + ');');
+
 end;
 
 function TMailChimp.GetAdapter: TRESTResponseDataSetAdapter;
@@ -947,10 +953,18 @@ begin
   Result := FRESTClient;
 end;
 
-procedure TMailChimp.gravarLog;
-
+procedure TMailChimp.gravaErro;
 begin
+    EnviaParaBanco('insert into mailchimp_log(data,envio) values (' +
+    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' +
+    QuotedStr(Res.Content) + ');');
+end;
 
+procedure TMailChimp.gravarLog;
+begin
+    EnviaParaBanco('insert into mailchimp_log(data,envio) values (' +
+    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' +
+    QuotedStr(Log) + ');');
 end;
 
 procedure TMailChimp.SetId(const Value: String);

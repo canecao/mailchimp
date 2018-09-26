@@ -292,7 +292,7 @@ begin
   ListaDeContatos := TListContact.Create;
   fCadastroDeListas := TfCadastroDeListas.Create(nil);
   fCadastroDeListas.ShowModal;
-  ListaDeContatos.company := fCadastroDeListas.edtName.Text;
+  ListaDeContatos.company := fCadastroDeListas.edtName2.Text;
   ListaDeContatos.address1 := fCadastroDeListas.edtAdress1.Text;
   ListaDeContatos.address2 := fCadastroDeListas.edtAdress2.Text;
   ListaDeContatos.city := fCadastroDeListas.edtCity.Text;
@@ -304,9 +304,8 @@ begin
   ListaDeContatos.from_emal := fCadastroDeListas.edtFromEmail.Text;
   ListaDeContatos.subject := fCadastroDeListas.edtSubject.Text;
   ListaDeContatos.language := fCadastroDeListas.edtLanguage.Text;
-  ListaDeContatos.name := fCadastroDeListas.edtName2.Text;
-  ListaDeContatos.permission_remider :=
-    fCadastroDeListas.EdtPermissionReminder.Text;
+  ListaDeContatos.name := fCadastroDeListas.edtName.Text;
+  ListaDeContatos.permission_remider := fCadastroDeListas.EdtPermissionReminder.Text;
   ListaDeContatos.Adicionar;
   FreeAndNil(fCadastroDeListas);
   FreeAndNil(ListaDeContatos);
@@ -320,6 +319,11 @@ end;
 
 procedure TForm1.btnRemoverListaClick(Sender: TObject);
 begin
+  if (dsLIsta.DataSet = nil) or dsLIsta.DataSet.FieldByName('id').IsNull then
+  begin
+      ShowMessage('escolha a lista!');
+      abort
+  end;
   with TListContact.Create do
   begin
     Id := dsLIsta.DataSet.FieldByName('id').AsString;
