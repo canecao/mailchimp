@@ -288,7 +288,6 @@ object Form1: TForm1
   object MailchimpvclConnection: TFDConnection
     Params.Strings = (
       'ConnectionDef=MailChimpVCL')
-    Connected = True
     LoginPrompt = False
     Left = 625
     Top = 110
