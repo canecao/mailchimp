@@ -518,8 +518,9 @@ begin
   Log := 'POST ' + JSonData.ToString;
   try
     Req.Execute;
-  finally
-
+    gravarLog;
+  except
+     gravaErro;
   end;
 
   if Res.GetSimpleValue('id', vId) then
@@ -636,8 +637,9 @@ begin
   Log := 'POST ' + JSonData.ToString;
   try
     Req.Execute;
-  finally
-
+    gravarLog
+  except
+    gravaErro;
   end;
   if Res.GetSimpleValue('id', vId) then
     Self.Id := vId
@@ -654,7 +656,12 @@ begin
     JSonData.AddPair(TJSONPair.create('html', Html.Text));
     Req.AddBody(JSonData);
     Log := 'PUT ' + CaixaDeDialogo.FileName;
-    Req.Execute;
+    try
+        Req.Execute;
+        gravarLog;
+    except
+        gravaErro;
+    end;
     JSonData.Free;
     CaixaDeDialogo.Free;
   end;
@@ -669,8 +676,9 @@ begin
   Log := 'DELETE ' + Req.Resource;
   try
     Req.Execute;
-  finally
-
+    gravarLog;
+  except
+    gravaErro;
   end;
   Result := True;
 end;
@@ -683,8 +691,9 @@ begin
     Req.ClearBody;
     Log := 'POST ' + Req.Resource;
     Req.Execute;
-  finally
-
+    gravarLog;
+  except
+     gravaErro;
   end;
 end;
 
@@ -792,8 +801,9 @@ begin
     Log := 'GET ' + Req.Resource;
     Req.Execute;
     Res.RootElement := 'campaigns';
-  finally
-
+    gravarLog;
+  except
+     gravaErro;
   end;
 end;
 

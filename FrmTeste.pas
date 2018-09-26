@@ -426,14 +426,16 @@ end;
 
 procedure TForm1.BitBtn7Click(Sender: TObject);
 begin
+  if dsLIsta.DataSet = nil then
+  begin
+      ShowMessage('escolha uma lista!');
+      abort;
+  end;
   with TContact.Create do
   begin
     idLista := dsLIsta.DataSet.FieldByName('id').AsString;
-    FNAME := Copy(cdsClienteBancoNOME.AsString, 1,
-      Pos(' ', cdsClienteBancoNOME.AsString) - 1);
-    LNAME := Copy(cdsClienteBancoNOME.AsString,
-      Pos(' ', cdsClienteBancoNOME.AsString) + 1,
-      length(cdsClienteBancoNOME.AsString));
+    FNAME := Copy(cdsClienteBancoNOME.AsString, 1,  Pos(' ', cdsClienteBancoNOME.AsString) - 1);
+    LNAME := Copy(cdsClienteBancoNOME.AsString, Pos(' ', cdsClienteBancoNOME.AsString) + 1,      length(cdsClienteBancoNOME.AsString));
     email_address := cdsClienteBancoEMAIL.AsString;
     phone := cdsClienteBancoTELEFONE.AsString;
     status := 'subscribed';
