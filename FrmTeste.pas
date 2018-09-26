@@ -405,6 +405,11 @@ end;
 
 procedure TForm1.BitBtn4Click(Sender: TObject);
 begin
+  if dsCampanhas.DataSet = nil then
+  begin
+    ShowMessage('Escolha uma campanha!');
+    abort;
+  end;
   with TCampaign.Create do
   begin
     Id := dsCampanhas.DataSet.FieldByName('id').AsString;
@@ -416,6 +421,11 @@ end;
 
 procedure TForm1.BitBtn5Click(Sender: TObject);
 begin
+  if dsCampanhas.DataSet = nil then
+  begin
+     ShowMessage('escolha uma campanha"');
+     abort
+  end;
   with TCampaign.Create do
   begin
     Id := dsCampanhas.DataSet.FieldByName('id').AsString;
@@ -448,6 +458,10 @@ end;
 
 procedure TForm1.BitBtn8Click(Sender: TObject);
 begin
+  if (dsLIsta.DataSet = nil) or (dsListaContatos.DataSet = nil) then
+  begin
+    ShowMessage('Escolha a lista e o contato!');
+  end;
   with TContact.Create do
   begin
     Id := dsListaContatos.DataSet.FieldByName('id').AsString;
