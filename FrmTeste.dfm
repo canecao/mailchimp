@@ -1196,12 +1196,6 @@ object Form1: TForm1
       Size = 16
     end
   end
-  object RESTRequest1: TRESTRequest
-    Params = <>
-    SynchronizedEvents = False
-    Left = 480
-    Top = 296
-  end
   object PopupMenu1: TPopupMenu
     Left = 480
     Top = 352

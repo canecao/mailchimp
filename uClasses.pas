@@ -41,10 +41,11 @@ Type
     procedure gravaErro;
   public
     constructor create;
-    procedure EnviaParaBanco(pSql : String);
+    procedure EnviaParaBanco(pSql: String);
     function Adicionar: Boolean; dynamic; abstract;
     function Deletar: Boolean; dynamic; abstract;
-    property HTTPBasicAuthenticator: THTTPBasicAuthenticator read GetHTTPBasicAuthenticator;
+    property HTTPBasicAuthenticator: THTTPBasicAuthenticator
+      read GetHTTPBasicAuthenticator;
     property RESTClient: TRESTClient read GetRESTClient;
     property Res: TRESTResponse read GetRes;
     property Adapter: TRESTResponseDataSetAdapter read GetAdapter;
@@ -80,8 +81,8 @@ Type
     property status: String read Fstatus write Setstatus;
     property FNAME: String read FFNAME write SetFNAME;
     property LNAME: String read FLNAME write SetLNAME;
-    property PHONE : string read FPHONE write SetPHONE;
-    property IDCliente : string read FIDCliente write SetIDCliente;
+    property PHONE: string read FPHONE write SetPHONE;
+    property IDCliente: string read FIDCliente write SetIDCliente;
   end;
 
   TCampaignReport = class(TMailChimp)
@@ -141,7 +142,7 @@ Type
     Fstate: String;
     Fcompany: String;
     Fsubject: String;
-    Fphone: String;
+    FPHONE: String;
     Faddress2: String;
     Fpermission_remider: String;
     Fcountry: String;
@@ -159,7 +160,7 @@ Type
     procedure Setlanguage(const Value: String);
     procedure Setname(const Value: String);
     procedure Setpermission_remider(const Value: String);
-    procedure Setphone(const Value: String);
+    procedure SetPHONE(const Value: String);
     procedure Setstate(const Value: String);
     procedure Setsubject(const Value: String);
     procedure Setzip(const Value: String);
@@ -186,7 +187,7 @@ Type
     property state: String read Fstate write Setstate;
     property zip: String read Fzip write Setzip;
     property country: String read Fcountry write Setcountry;
-    property phone: String read Fphone write Setphone;
+    property PHONE: String read FPHONE write SetPHONE;
     property from_name: String read Ffrom_name write Setfrom_name;
     property from_emal: String read Ffrom_emal write Setfrom_emal;
     property subject: String read Fsubject write Setsubject;
@@ -245,7 +246,7 @@ begin
   JSonContact.AddPair(TJSONPair.create('state', Self.state));
   JSonContact.AddPair(TJSONPair.create('zip', Self.zip));
   JSonContact.AddPair(TJSONPair.create('country', Self.country));
-  JSonContact.AddPair(TJSONPair.create('phone', Self.phone));
+  JSonContact.AddPair(TJSONPair.create('phone', Self.PHONE));
 
   JsonCampaignDefaults := TJSONObject.create;
   JsonCampaignDefaults.AddPair(TJSONPair.create('from_name', Self.from_name));
@@ -256,17 +257,16 @@ begin
   JSON := TJSONObject.create;
   JSON.AddPair(TJSONPair.create('name', Self.name));
   JSON.AddPair(TJSONPair.create('contact', JSonContact));
-  JSON.AddPair(TJSONPair.create('permission_reminder', Self.permission_remider));
+  JSON.AddPair(TJSONPair.create('permission_reminder',
+    Self.permission_remider));
   JSON.AddPair(TJSONPair.create('campaign_defaults', JsonCampaignDefaults));
   JSON.AddPair(TJSONPair.create('email_type_option', TJSONTrue.create));
 
   Configurar;
-
   try
     Req.Execute;
+  finally
     gravarLog;
-  Except
-     gravaErro
   end;
 
   if Res.GetSimpleValue('id', vId) then
@@ -322,29 +322,32 @@ begin
 end;
 
 function TListContact.DeletarPorId(pId: String): Boolean;
-var vSql : String;
+var
+  vSql: String;
 begin
-try
+  Result := False;
+  Req.Resource := 'Lists/' + pId;
+  Req.Method := rmDELETE;
+  Log := 'DELETE ' + Req.Resource;
   try
-    Req.Resource := 'Lists/' + pId;
-    Req.Method := rmDELETE;
-    Log := 'DELETE ' + Req.Resource;
     Req.Execute;
-    Result := True;
+  finally
     gravarLog;
- finally
-   try
-    vSql :=  'delete from CLIENTEFISICO_MAILCHIMP where (idlista = '+QuotedStr(Self.id)+')';
-    EnviaParaBanco(vSql);
-    except
-      log := vsql;
-    end;
-    Result := True;
   end;
-except
-   gravaErro;
-   Result := false;
-end;
+
+  if Res.StatusCode = 200 then
+  begin
+    Result := True;
+    vSql := 'delete from CLIENTEFISICO_MAILCHIMP where (idlista = ' +
+      QuotedStr(Self.Id) + ')';
+    try
+      EnviaParaBanco(vSql);
+    except
+      Log := 'erro ao deletar o cliente' + QuotedStr(Self.Id) +
+        ' do banco de dados';
+      gravarLog
+    end;
+  end;
 end;
 
 destructor TListContact.Destroy;
@@ -377,7 +380,12 @@ var
 begin
   Listas := TListContact.create;
   Listas.SetLista;
-  Result := Listas.MemTable;
+  if Listas.Res.StatusCode = 200 then
+  begin
+    Result := Listas.MemTable;
+  end
+  else
+    Result := nil;
 end;
 
 class function TListContact.ListaContatos(pIdLista: String): TFDMemTable;
@@ -431,16 +439,20 @@ end;
 
 procedure TListContact.SetLista;
 begin
-  Try
-    Req.Resource := 'lists';
-    Adapter.RootElement := 'lists';
-    Req.Method := rmGET;
-    Log := 'GET LISTS';
+  Adapter.RootElement := '';
+  Req.Resource := 'lists';
+  Req.Method := rmGET;
+  Log := 'GET LISTS';
+  try
     Req.Execute;
+  finally
     gravarLog;
-  except
-    gravaErro;
-  End;
+  end;
+
+  if Res.StatusCode = 200 then
+  begin
+    Adapter.RootElement := 'lists';
+  end;
 end;
 
 procedure TListContact.SetListaContatos(pIdLista: string);
@@ -462,9 +474,9 @@ begin
   Fpermission_remider := Value;
 end;
 
-procedure TListContact.Setphone(const Value: String);
+procedure TListContact.SetPHONE(const Value: String);
 begin
-  Fphone := Value;
+  FPHONE := Value;
 end;
 
 procedure TListContact.Setstate(const Value: String);
@@ -518,17 +530,17 @@ begin
   Log := 'POST ' + JSonData.ToString;
   try
     Req.Execute;
+  finally
     gravarLog;
-  except
-     gravaErro;
   end;
 
   if Res.GetSimpleValue('id', vId) then
   begin
     Self.Id := vId;
-    EnviaParaBanco('insert into CLIENTEFISICO_MAILCHIMP(idlista,IDCLIENTEFISICO, idchimp) '+
-                     'values ('+QuotedStr(Self.idLista)+','+QuotedStr(Self.IDCliente)+','+
-                     QuotedStr(Self.Id)+')');
+    EnviaParaBanco
+      ('insert into CLIENTEFISICO_MAILCHIMP(idlista,IDCLIENTEFISICO, idchimp) '
+      + 'values (' + QuotedStr(Self.idLista) + ',' + QuotedStr(Self.IDCliente) +
+      ',' + QuotedStr(Self.Id) + ')');
   end
   else
     Self.MsgErro := Res.Content;
@@ -538,14 +550,16 @@ begin
 end;
 
 function TContact.Deletar: Boolean;
-var vSql : string;
+var
+  vSql: string;
 begin
   Req.Resource := 'lists/' + Self.idLista + '/members/' + Self.Id;
   Req.Method := rmDELETE;
   Log := 'DELETE ' + Req.Resource;
   try
     Req.Execute;
-    vSql :=  'delete from CLIENTEFISICO_MAILCHIMP where (idlista = '+QuotedStr(Self.idLista)+') and (IDchimp = '+QuotedStr(Self.ID)+')';
+    vSql := 'delete from CLIENTEFISICO_MAILCHIMP where (idlista = ' +
+      QuotedStr(Self.idLista) + ') and (IDchimp = ' + QuotedStr(Self.Id) + ')';
 
     EnviaParaBanco(vSql);
   finally
@@ -637,14 +651,15 @@ begin
   Log := 'POST ' + JSonData.ToString;
   try
     Req.Execute;
-    gravarLog
-  except
-    gravaErro;
+  finally
+    gravarLog;
   end;
+
   if Res.GetSimpleValue('id', vId) then
     Self.Id := vId
   else
     Self.MsgErro := Res.Content;
+
   JSonData.Free;
   Result := Self.Id <> '';
   if Result then
@@ -657,10 +672,9 @@ begin
     Req.AddBody(JSonData);
     Log := 'PUT ' + CaixaDeDialogo.FileName;
     try
-        Req.Execute;
-        gravarLog;
-    except
-        gravaErro;
+      Req.Execute;
+    finally
+      gravarLog;
     end;
     JSonData.Free;
     CaixaDeDialogo.Free;
@@ -676,24 +690,22 @@ begin
   Log := 'DELETE ' + Req.Resource;
   try
     Req.Execute;
+  finally
     gravarLog;
-  except
-    gravaErro;
   end;
-  Result := True;
+  Result := Res.StatusCode = 200;
 end;
 
 procedure TCampaign.enviar;
 begin
+  Req.Resource := 'campaigns/' + Self.Id + '/actions/send';
+  Req.Method := rmPOST;
+  Req.ClearBody;
+  Log := 'POST ' + Req.Resource;
   try
-    Req.Resource := 'campaigns/' + Self.Id + '/actions/send';
-    Req.Method := rmPOST;
-    Req.ClearBody;
-    Log := 'POST ' + Req.Resource;
     Req.Execute;
+  finally
     gravarLog;
-  except
-     gravaErro;
   end;
 end;
 
@@ -795,16 +807,18 @@ end;
 
 procedure TCampaign.SetLista;
 begin
+  Req.Resource := 'campaigns';
+  Req.Method := rmGET;
+  Log := 'GET ' + Req.Resource;
   try
-    Req.Resource := 'campaigns';
-    Req.Method := rmGET;
-    Log := 'GET ' + Req.Resource;
     Req.Execute;
-    Res.RootElement := 'campaigns';
+  finally
     gravarLog;
-  except
-     gravaErro;
   end;
+  gravarLog;
+  if Res.StatusCode = 200 then
+    Res.RootElement := 'campaigns';
+
 end;
 
 procedure TCampaign.SetNomeCampanha(const Value: string);
@@ -834,7 +848,7 @@ begin
 
 end;
 
-procedure TMailChimp.EnviaParaBanco(psql: String);
+procedure TMailChimp.EnviaParaBanco(pSql: String);
 begin
 
   Conexao.ExecSQL(pSql);
@@ -965,16 +979,14 @@ end;
 
 procedure TMailChimp.gravaErro;
 begin
-    EnviaParaBanco('insert into mailchimp_log(data,envio) values (' +
-    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' +
-    QuotedStr(Res.Content) + ');');
+
 end;
 
 procedure TMailChimp.gravarLog;
 begin
-    EnviaParaBanco('insert into mailchimp_log(data,envio) values (' +
-    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' +
-    QuotedStr(Log) + ');');
+  EnviaParaBanco('insert into mailchimp_log(data,envio,resposta) values (' +
+    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' + QuotedStr(Log)
+    + ',' + QuotedStr(Res.Content) + ');');
 end;
 
 procedure TMailChimp.SetId(const Value: String);

@@ -237,7 +237,6 @@ type
     cdsClienteBancoCLIENTE: TIntegerField;
     cdsClienteBancoNOME: TStringField;
     cdsClienteBancoEMAIL: TStringField;
-    RESTRequest1: TRESTRequest;
     PopupMenu1: TPopupMenu;
     S1: TMenuItem;
     cdsClienteBancoEND_RESID: TStringField;
@@ -291,6 +290,7 @@ var
 begin
   ListaDeContatos := TListContact.Create;
   fCadastroDeListas := TfCadastroDeListas.Create(nil);
+  fCadastroDeListas.ModalResult := mrNone;
   fCadastroDeListas.ShowModal;
   ListaDeContatos.company := fCadastroDeListas.edtName2.Text;
   ListaDeContatos.address1 := fCadastroDeListas.edtAdress1.Text;
@@ -306,15 +306,22 @@ begin
   ListaDeContatos.language := fCadastroDeListas.edtLanguage.Text;
   ListaDeContatos.name := fCadastroDeListas.edtName.Text;
   ListaDeContatos.permission_remider := fCadastroDeListas.EdtPermissionReminder.Text;
-  ListaDeContatos.Adicionar;
+  if fCadastroDeListas.ModalResult = mrOk then
+  begin
+     ListaDeContatos.Adicionar;
+     dsLIsta.DataSet := TListContact.Lista;;
+  end;
   FreeAndNil(fCadastroDeListas);
   FreeAndNil(ListaDeContatos);
-  dsLIsta.DataSet := TListContact.Lista;;
+
 end;
 
 procedure TForm1.btnBuscarListaClick(Sender: TObject);
+var dataset : TDataSet;
 begin
-  dsLIsta.DataSet := TListContact.Lista;
+  dataset :=  TListContact.Lista;
+  if dataset <> nil then
+     dsLIsta.DataSet := TListContact.Lista;
 end;
 
 procedure TForm1.btnRemoverListaClick(Sender: TObject);
@@ -329,9 +336,12 @@ begin
     Id := dsLIsta.DataSet.FieldByName('id').AsString;
     Deletar;
     Free;
+    if Res.StatusCode = 200 then
+    begin
+        dsLIsta.DataSet := TListContact.Lista;
+        dsListaContatos.DataSet.Free;
+    end;
   end;
-  dsLIsta.DataSet := TListContact.Lista;
-  dsListaContatos.DataSet.Free;
 end;
 
 procedure TForm1.BuscarContatos;
@@ -399,8 +409,10 @@ begin
       Title := CadastroDeCampanha.edtTitle.Text;
       FreeAndNil(CadastroDeCampanha);
       Adicionar;
-    end;
-  BitBtn1Click(nil);
+      if Res.StatusCode = 200 then
+         BitBtn1Click(nil);
+    end;          
+
 end;
 
 procedure TForm1.BitBtn4Click(Sender: TObject);
@@ -415,8 +427,9 @@ begin
     Id := dsCampanhas.DataSet.FieldByName('id').AsString;
     Deletar;
     Free;
+    if res.StatusCode = 200 then BitBtn1Click(nil);
   end;
-  BitBtn1Click(nil);
+
 end;
 
 procedure TForm1.BitBtn5Click(Sender: TObject);
@@ -469,8 +482,11 @@ begin
     IDCliente := dsListaContatos.DataSet.FieldByName('id').AsString;
     Deletar;
     Free;
+    if Res.StatusCode = 200 then
+         BuscarContatos;
   end;
-  BuscarContatos;
+
+
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
