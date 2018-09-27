@@ -203,7 +203,7 @@ implementation
 
 uses REST.Types, VCL.Dialogs, VCL.Forms, IniFiles,
   FireDAC.Stan.Option, FrmCadastroDeLista, System.SysUtils, FrmTeste,
-  System.StrUtils;
+  System.StrUtils, FireDAC.Comp.DataSet;
 { TListContact }
 
 function TListContact.Adicionar: Boolean;
@@ -335,19 +335,15 @@ begin
     gravarLog;
   end;
 
-  if Res.StatusCode = 200 then
+ { if Res.StatusCode = 204 then
   begin
     Result := True;
-    vSql := 'delete from CLIENTEFISICO_MAILCHIMP where (idlista = ' +
-      QuotedStr(Self.Id) + ')';
+    vSql := 'delete from CLIENTEFISICO_MAILCHIMP where (idlista = ' +  QuotedStr(Self.Id) + ')';
     try
       EnviaParaBanco(vSql);
     except
-      Log := 'erro ao deletar o cliente' + QuotedStr(Self.Id) +
-        ' do banco de dados';
-      gravarLog
     end;
-  end;
+  end; }
 end;
 
 destructor TListContact.Destroy;
@@ -563,7 +559,8 @@ begin
 
     EnviaParaBanco(vSql);
   finally
-
+     log := 'DELETE ' + Req.Resource;
+     gravarLog;
   end;
   Self.MsgErro := Res.Content;
   Result := True;
@@ -815,10 +812,8 @@ begin
   finally
     gravarLog;
   end;
-  gravarLog;
   if Res.StatusCode = 200 then
     Res.RootElement := 'campaigns';
-
 end;
 
 procedure TCampaign.SetNomeCampanha(const Value: string);
@@ -850,7 +845,6 @@ end;
 
 procedure TMailChimp.EnviaParaBanco(pSql: String);
 begin
-
   Conexao.ExecSQL(pSql);
   Conexao.Commit;
   Conexao.Connected := False;
@@ -983,10 +977,27 @@ begin
 end;
 
 procedure TMailChimp.gravarLog;
+var SS : TStringStream;
+    dt : TFDQuery;
 begin
-  EnviaParaBanco('insert into mailchimp_log(data,envio,resposta) values (' +
-    QuotedStr(FormatDateTime('mm/dd/yyyy hh:mm:ss', Now)) + ',' + QuotedStr(Log)
-    + ',' + QuotedStr(Res.Content) + ');');
+   ss := TStringStream.Create(Res.Content,TEncoding.UTF8);
+   dt := TFDQuery.Create(nil);
+   dt.Connection := Conexao;
+   dt.SQL.Text := 'insert into mailchimp_log(data,envio,resposta) VALUES (:data,:envio,:blobdata);';
+   dt.Params[0].DataType := ftDateTime;
+   dt.Params[1].DataType := ftString;
+   dt.Params[2].DataType := ftBlob;
+// FireDAC takes ownership of the stream object
+   dt.Params[0].AsDateTime := Now;
+   dt.Params[1].AsString := Log;
+   dt.Params[2].AsStream := ss;
+   dt.Prepare;
+   dt.ExecSQL;
+  Conexao.Commit;
+  Conexao.Connected := False;
+  Conexao.Free;
+  Conexao := NIL;
+  Log := EmptyStr;
 end;
 
 procedure TMailChimp.SetId(const Value: String);

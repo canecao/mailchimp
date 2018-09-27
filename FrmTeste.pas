@@ -321,7 +321,7 @@ var dataset : TDataSet;
 begin
   dataset :=  TListContact.Lista;
   if dataset <> nil then
-     dsLIsta.DataSet := TListContact.Lista;
+     dsLIsta.DataSet := dataset;
 end;
 
 procedure TForm1.btnRemoverListaClick(Sender: TObject);
@@ -336,7 +336,7 @@ begin
     Id := dsLIsta.DataSet.FieldByName('id').AsString;
     Deletar;
     Free;
-    if Res.StatusCode = 200 then
+    if Res.StatusCode = 204 then
     begin
         dsLIsta.DataSet := TListContact.Lista;
         dsListaContatos.DataSet.Free;
@@ -427,7 +427,7 @@ begin
     Id := dsCampanhas.DataSet.FieldByName('id').AsString;
     Deletar;
     Free;
-    if res.StatusCode = 200 then BitBtn1Click(nil);
+    if res.StatusCode = 204 then BitBtn1Click(nil);
   end;
 
 end;
@@ -482,7 +482,7 @@ begin
     IDCliente := dsListaContatos.DataSet.FieldByName('id').AsString;
     Deletar;
     Free;
-    if Res.StatusCode = 200 then
+    if Res.StatusCode = 204 then
          BuscarContatos;
   end;
 

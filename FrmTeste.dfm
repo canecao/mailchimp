@@ -287,6 +287,9 @@ object Form1: TForm1
   end
   object MailchimpvclConnection: TFDConnection
     Params.Strings = (
+      
+        'Database=C:\Users\shihan\Desktop\mailchimpVCL2\Win32\Debug\MAILC' +
+        'HIMP.FDB'
       'ConnectionDef=MailChimpVCL')
     LoginPrompt = False
     Left = 625
